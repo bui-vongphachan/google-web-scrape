@@ -1,0 +1,64 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model CSVFile {
+  id        String     @default(cuid()) @id
+  name      String
+  createdAt DateTime   @default(now()) @map(name: "created_at")
+  // owner     User       @relation(fields: [ownerId], references: [id])
+  // ownerId  String
+  keywords  Keyword[]
+}
+
+model Keyword {
+  id        String     @default(cuid()) @id
+  keyword      String
+  createdAt DateTime   @default(now()) @map(name: "created_at")
+  csvFile  CSVFile    @relation(fields: [csvFileId], references: [id])
+  csvFileId String
+  googleSearchResults GoogleSearchItems[]
+  googleSearchRequest GoogleSearchRequest[]
+}
+
+model GoogleSearchRequest {
+  id                String     @default(cuid()) @id
+  totalResults      Int
+  searchTerms       String
+  cx                String
+  createdAt         DateTime   @default(now()) @map(name: "created_at")
+  Keywords          Keyword    @relation(fields: [keywordId], references: [id])
+  keywordId         String
+}
+
+model GoogleSearchItems {
+  id                    String     @default(cuid()) @id
+  title                 String 
+  htmlTitle             String
+  link                  String
+  displayLink           String
+  snippet               String
+  htmlSnippet           String
+  formattedUrl          String
+  htmlFormattedUrl      String
+  keyword               Keyword    @relation(fields: [keywordId], references: [id])
+  keywordId             String
+}
+
+model User {
+  id            String       @default(cuid()) @id
+  name          String?
+  email         String?   @unique
+  createdAt     DateTime  @default(now()) @map(name: "created_at")
+  updatedAt     DateTime  @updatedAt @map(name: "updated_at")
+  // csvFiles      CSVFile[]  
+  @@map(name: "users")
+}
