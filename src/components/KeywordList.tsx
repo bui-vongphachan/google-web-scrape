@@ -12,7 +12,7 @@ export default async function KeywordList(props: any) {
   });
 
   return (
-    <div id="file-contents-box" className=" w-56 ">
+    <div id="file-contents-box" className=" w-full max-w-56">
       <div className=" flex flex-col  overflow-scroll h-full">
         {keywords?.map((keyword, keywordIndex) => (
           <KeywordItem key={keywordIndex + ""} keyword={keyword} />
