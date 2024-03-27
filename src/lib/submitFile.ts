@@ -1,15 +1,30 @@
 "use server";
 
-import { CSVFile, Keyword } from "@prisma/client";
+import {
+  CSVFile,
+  GoogleSearchInfo,
+  GoogleSearchItems,
+  Keyword,
+} from "@prisma/client";
 import { generateUniqueIdentifier } from "./generateUniqueIdentifier";
 import prisma from "./prisma";
 
-export default async function submitFile(prevState: any, formData: FormData) {
-  const file = formData.get("file") as File;
+export default async function submitFile(
+  prevState: any,
+  formData: FormData
+): Promise<{
+  message: string;
+  data: {
+    searchInformation: GoogleSearchInfo;
+    items?: GoogleSearchItems[];
+  }[];
+}> {
+  const file = formData.get("file") as File | null;
 
   if (!file) {
     return {
       message: "Please select a file",
+      data: [],
     };
   }
 
@@ -25,53 +40,77 @@ export default async function submitFile(prevState: any, formData: FormData) {
     data: newFile,
   });
 
-  const list = await file.text().then((text) =>
-    text
-      .split("\n")
-      .filter((item) => item !== "")
-      .map((item) => {
-        const keyword: Keyword = {
-          id: generateUniqueIdentifier(),
-          keyword: item,
+  const list = await file
+    .text()
+    .then((text) => text.split("\n").filter((item) => item !== ""));
+
+  await prisma?.keyword.createMany({
+    data: list.map((item) => {
+      const keyword: Keyword = {
+        id: generateUniqueIdentifier(),
+        keyword: item,
+        csvFileId: fileId,
+        createdAt: new Date(),
+      };
+
+      return keyword;
+    }),
+  });
+
+  const url = new URL("https://www.googleapis.com/customsearch/v1");
+
+  url.searchParams.append("key", "AIzaSyCA6EfZc3lvCuHs_mGsiv1Baofva1yFwXo");
+  url.searchParams.append("cx", "1666bc89aa1074d09");
+
+  const pending = list.map(async (keyword) => {
+    url.searchParams.append("q", keyword);
+    url.searchParams.append("quotaUser", generateUniqueIdentifier());
+
+    const response = fetch(url.toString())
+      .then((response) => response.json())
+      .then((data) => {
+        return data;
+      })
+      .catch((error) => {
+        console.error(error);
+        return null;
+      });
+
+    const data = (await response) as {
+      searchInformation: GoogleSearchInfo;
+      items: GoogleSearchItems[];
+    };
+
+    const searchItems: GoogleSearchItems[] =
+      data.items?.map((item) => {
+        return {
+          ...item,
+          keyword: keyword,
           csvFileId: fileId,
           createdAt: new Date(),
         };
+      }) || [];
 
-        return keyword;
-      })
-  );
-
-  await prisma?.keyword.createMany({
-    data: list,
-  });
-
-  // const url = new URL("https://www.googleapis.com/customsearch/v1");
-
-  // url.searchParams.append("key", "AIzaSyCA6EfZc3lvCuHs_mGsiv1Baofva1yFwXo");
-  // url.searchParams.append("cx", "1666bc89aa1074d09");
-
-  const corsProxyUrl = "http://localhost:8080/";
-  const url = `${corsProxyUrl}https://www.google.com/search?q=`;
-
-  const mapList = new Map();
-
-  const pending = list.map(async (item) => {
-    // url.searchParams.append("q", item.keyword);
-    // url.searchParams.append("quotaUser", generateUniqueIdentifier());
-
-    const response = await fetch(url + item.keyword, {
-      headers: { "x-requested-with": "xmlhttprequest" },
+    await prisma?.googleSearchItems.createMany({
+      data: searchItems,
+      skipDuplicates: true,
     });
 
-    const html = await response.text();
+    await prisma?.googleSearchInfo.create({
+      data: {
+        ...data.searchInformation,
+        keyword: keyword,
+        createdAt: new Date(),
+      },
+    });
 
-    mapList.set(item.keyword, html);
+    return data;
   });
 
-  await Promise.all(pending);
+  const searchResults = await Promise.all(pending);
 
   return {
     message: "Success",
-    data: mapList,
+    data: searchResults,
   };
 }
