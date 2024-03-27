@@ -6,6 +6,13 @@ export default async function ResultPreview(props: any) {
 
   const results = await getGoogleCustomSearchResult(keyword);
 
+  if (!results.items) {
+    if (results.error) {
+      return <p>Error! {results.error.message}</p>;
+    }
+    return <p>Error!</p>;
+  }
+
   return (
     <div
       id="result-previewer"
