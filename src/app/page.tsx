@@ -4,8 +4,11 @@ import KeywordList from "@/components/KeywordList";
 import CSVList from "@/components/CSVList";
 import ExampleFileButton from "@/components/ExampleFileButton";
 import ResultPreview from "@/components/ResultPreview";
+import validateAccessToken from "@/lib/validateAccessToken";
 
 export default async function Home(props: any) {
+  const user = await validateAccessToken();
+
   return (
     <main id="main-box" className=" mx-auto flex max-w-7xl h-screen p-12">
       <div id="wrapper" className=" border rounded-md w-full flex flex-col ">
