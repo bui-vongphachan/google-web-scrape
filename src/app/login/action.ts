@@ -80,7 +80,7 @@ export default async function login(
     };
   }
 
-  const tokenSecret = process.env.NEXTAUTH_SECRET;
+  const tokenSecret = process.env.JWT_SECRET;
 
   if (!tokenSecret) {
     return {
