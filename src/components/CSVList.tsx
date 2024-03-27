@@ -9,7 +9,7 @@ export default async function CSVList(props: any) {
   });
 
   return (
-    <div id="file-list-box" className=" w-40">
+    <div id="file-list-box" className=" w-full max-w-48">
       <div className=" flex flex-col overflow-scroll h-full divide-y border-b">
         {files.map((file) => (
           <CSVItem key={file.id} file={file} />
