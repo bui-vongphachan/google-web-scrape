@@ -2,6 +2,7 @@
 
 import { CSVFile, Keyword } from "@prisma/client";
 import { generateUniqueIdentifier } from "./generateUniqueIdentifier";
+import prisma from "./prisma";
 
 export default async function submitFile(prevState: any, formData: FormData) {
   const file = formData.get("file") as File;
@@ -20,7 +21,7 @@ export default async function submitFile(prevState: any, formData: FormData) {
     createdAt: new Date(),
   };
 
-  await prisma?.cSVFile.create({
+  await prisma.cSVFile.create({
     data: newFile,
   });
 

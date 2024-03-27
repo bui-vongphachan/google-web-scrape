@@ -1,3 +1,4 @@
+import prisma from "@/lib/prisma";
 import KeywordItem from "./KeywordItem";
 
 export default async function KeywordList(props: any) {
@@ -5,7 +6,7 @@ export default async function KeywordList(props: any) {
     return <div></div>;
   }
 
-  const keywords = await prisma?.keyword.findMany({
+  const keywords = await prisma.keyword.findMany({
     where: {
       csvFileId: props.searchParams.file,
     },
