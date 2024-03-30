@@ -1,17 +1,12 @@
 "use client";
 
-import submitFile from "@/lib/submitFile";
+import submitFile, { ActionResult } from "./action";
 import React from "react";
 import { useFormState } from "react-dom";
-import { GoogleSearchInfo, GoogleSearchItems } from "@prisma/client";
+import { useFormStatus } from "react-dom";
+import saveResultInClient from "./saveResultInClient";
 
-const initialState: {
-  message: string;
-  data: {
-    searchInformation: GoogleSearchInfo;
-    items?: GoogleSearchItems[];
-  }[];
-} = {
+const initialState: ActionResult = {
   message: "",
   data: [],
 };
@@ -19,11 +14,23 @@ const initialState: {
 export default function Appbar() {
   const ref = React.useRef<HTMLButtonElement>(null);
 
+  const { pending } = useFormStatus();
+
   const [state, action] = useFormState(submitFile, initialState);
 
   const onChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     ref.current?.click();
   };
+
+  React.useEffect(() => {
+    const cloneState = state as ActionResult;
+
+    if (!cloneState.data) return;
+
+    if (cloneState.data.length === 0) return;
+
+    saveResultInClient(cloneState.data);
+  }, [state]);
 
   return (
     <div id="actions-box" className="action-box">

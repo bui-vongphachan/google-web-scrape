@@ -4,7 +4,6 @@ import submitFile from "@/lib/submitFile";
 import React from "react";
 import { useFormState } from "react-dom";
 import ResultSaver from "./ResultSaver";
-import FileUploader from "./core/FileUploader";
 import { GoogleSearchInfo, GoogleSearchItems } from "@prisma/client";
 
 const initialState: {
@@ -28,16 +27,22 @@ export default function FileInput() {
   };
 
   return (
-    <div id="search-box" className=" flex-1 ">
+    <div id="upload-input" className="upload-input-container">
       <ResultSaver searchResult={state.data!} />
-      <form action={action}>
-        <FileUploader
-          type="file"
-          name="file"
-          accept=".csv"
-          onChange={onChange}
-          className="sr-only"
-        />
+      <form action={action} className="upload-form">
+        <div className="upload-box">
+          <label htmlFor="file-upload" className="upload-label ">
+            <span>Choose a file</span>
+            <input
+              id="file-upload"
+              type="file"
+              name="file"
+              accept=".csv"
+              onChange={onChange}
+              className="sr-only"
+            />
+          </label>
+        </div>
         <button type="submit" className=" hidden" ref={ref}>
           submit
         </button>
