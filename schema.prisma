@@ -33,4 +33,10 @@ model User {
   // csvFiles      CSVFile[]  
   @@map(name: "users")
 }
- 
+
+model PageSourceCode {
+  id          String    @default(cuid()) @id
+  keyword     String
+  code        String
+  createdAt   DateTime  @default(now()) @map(name: "created_at")
+}
