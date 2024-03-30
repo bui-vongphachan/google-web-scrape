@@ -19,6 +19,7 @@ model File {
 
 model Keyword {
   id          String    @default(cuid()) @id
+  stats       String
   keyword     String
   createdAt   DateTime  @default(now()) @map(name: "created_at")
   fileId      String?   @map(name: "file_id")
