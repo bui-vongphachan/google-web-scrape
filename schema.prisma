@@ -10,52 +10,22 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
-model CSVFile {
-  id        String     @default(cuid()) @id
+model File {
+  id        String    @default(cuid()) @id
   name      String
-  createdAt DateTime   @default(now()) @map(name: "created_at")
-  // owner     User       @relation(fields: [ownerId], references: [id])
-  // ownerId  String
-  keywords  Keyword[]
+  createdAt DateTime  @default(now()) @map(name: "created_at")
+  userId    String?   @map(name: "user_id")
 }
 
 model Keyword {
-  id        String     @default(cuid()) @id
-  keyword      String
-  createdAt DateTime   @default(now()) @map(name: "created_at")
-  csvFile  CSVFile    @relation(fields: [csvFileId], references: [id])
-  csvFileId String
-}
- 
-
-model GoogleSearchInfo {
-  id                    String     @default(cuid()) @id
-  totalResults          Int
-  searchTerms           String
-  searchTime            Float
-  formattedSearchTime   Float
-  formattedTotalResults String
-  keywordId             String
-  keyword               String
-  createdAt             DateTime   @default(now()) @map(name: "created_at")
-}
-
-model GoogleSearchItems {
-  id                    String     @default(cuid()) @id
-  title                 String     @default("")
-  htmlTitle             String     @default("")
-  link                  String     @default("")
-  displayLink           String     @default("")
-  snippet               String     @default("")
-  htmlSnippet           String     @default("")
-  formattedUrl          String     @default("")
-  htmlFormattedUrl      String     @default("")
-  keyword               String     @default("")
-  createdAt             DateTime   @default(now()) @map(name: "created_at")
+  id          String    @default(cuid()) @id
+  keyword     String
+  createdAt   DateTime  @default(now()) @map(name: "created_at")
+  fileId      String?   @map(name: "file_id")
 }
 
 model User {
-  id            String       @default(cuid()) @id
+  id            String    @default(cuid()) @id
   email         String?   @unique
   password      String?  
   createdAt     DateTime  @default(now()) @map(name: "created_at")
