@@ -95,7 +95,10 @@ export default async function login(
       email: existingUser.email,
       id: existingUser.id,
     },
-    tokenSecret
+    tokenSecret,
+    {
+      expiresIn: "1d",
+    }
   );
 
   const cookie = cookies();
