@@ -1,10 +1,11 @@
 import amqp from "amqplib";
 import doScraping from "../../services/do-scrap";
+import { Sequelize } from "sequelize";
 
 const queueName = "search-queue";
 const exchangeName = "search-exchange";
 
-export default async function startConsumeMessage() {
+export default async function startConsumeMessage(sequalizeClient: Sequelize) {
   try {
     if (!process.env.RABBITMQ_URL) throw new Error("RABBITMQ_URL is not set");
 
@@ -32,7 +33,7 @@ export default async function startConsumeMessage() {
 
         console.log(`[x] Received message: ${message.content.toString()}`);
 
-        await doScraping(message.content.toString());
+        await doScraping(message.content.toString(), sequalizeClient);
       },
       { noAck: true }
     ); // Set noAck to true if you don't need manual acknowledgment

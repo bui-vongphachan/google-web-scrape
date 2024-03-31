@@ -1,8 +1,9 @@
 import express from "express";
 import cors from "cors";
-import compression from "compression";
-import { startPostgre } from "./lib/startPostgre";
-import startConsumeMessage from "./lib/startConsumeMessage";
+import compression from "compression"; 
+import { startPostgre } from "./src/lib/startPostgre";
+import startConsumeMessage from "./src/lib/startConsumeMessage";
+import { sequalizeClient } from "./src/lib/sequalize";
 
 const app = express();
 
@@ -17,5 +18,5 @@ app.listen(8000, async () => {
 
   await startPostgre();
 
-  await startConsumeMessage();
+  await startConsumeMessage(sequalizeClient);
 });
