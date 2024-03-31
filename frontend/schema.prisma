@@ -10,19 +10,22 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
-model File {
+model UploadedFile {
   id        String    @default(cuid()) @id
   name      String
   createdAt DateTime  @default(now()) @map(name: "created_at")
   userId    String?   @map(name: "user_id")
+  @@map("uploaded_files")
 }
 
 model Keyword {
   id          String    @default(cuid()) @id
-  stats       String
-  keyword     String
+  stats       String    @default("")
+  adwords     Int       @default(0)
+  keyword     String    @default("")
   createdAt   DateTime  @default(now()) @map(name: "created_at")
   fileId      String?   @map(name: "file_id")
+  @@map("keywords")
 }
 
 model User {
@@ -36,8 +39,9 @@ model User {
 }
 
 model PageSourceCode {
-  id          String    @default(cuid()) @id
+  id          Int       @default(autoincrement()) @id
   keyword     String
-  code        String
+  compressedSourceCode        String @map(name: "compressed_source_code")
   createdAt   DateTime  @default(now()) @map(name: "created_at")
+  @@map("page_source_codes")
 }
