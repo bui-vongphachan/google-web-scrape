@@ -6,7 +6,7 @@ export default function validateInput(content: unknown): string[] {
   if (content === "") return [];
 
   // check if is array
-  if (!Array.isArray(content)) return [];
+  if (!Array.isArray(Array.from(content))) return [];
 
   // convert content strings to array
   const contentArray = JSON.parse(content);
@@ -14,5 +14,5 @@ export default function validateInput(content: unknown): string[] {
   // check if array is empty
   if (contentArray.length === 0) return [];
 
-  return [];
+  return contentArray;
 }
