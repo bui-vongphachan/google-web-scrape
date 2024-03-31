@@ -1,6 +1,9 @@
 import { pgClient } from "../../lib/startPostgre";
 
 export default async function extractNewKeywords(keywords: string[]) {
+  // validate input
+  if (keywords.length === 0) return [];
+
   // add single quote to each keyword
   // so that it can be used in the query
   const singleQuotedKeywords = keywords.map((item) => `'${item}'`).join(",");
