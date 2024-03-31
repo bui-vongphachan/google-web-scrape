@@ -1,15 +1,15 @@
+require("dotenv").config();
+
 const amqp = require("amqplib");
 const { doScraping } = require("./scrap");
 
 const queueName = "search-queue";
 const exchangeName = "search-exchange";
-const url =
-  "amqps://wyaofjks:FxcvgNSO_ODhNd6YhMF0utAMDyuuenwy@octopus.rmq3.cloudamqp.com/wyaofjks";
 
 async function listenToQueue() {
   try {
     // Connect to RabbitMQ server
-    const connection = await amqp.connect(url);
+    const connection = await amqp.connect(process.env.RABBITMQ_URL);
 
     // Create a channel
     const channel = await connection.createChannel();
