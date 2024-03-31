@@ -1,0 +1,27 @@
+name: self-host-deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up .env file
+        run: |
+          cd ./frontend/
+          touch .env
+          echo "${{ secrets.ENV_DEV }}" > .env
+          chmod 600 .env
+
+      - name: Build and run Docker Compose
+        run: |
+          # Build and run Docker Compose
+          cd ./frontend/
+          docker-compose up --build -d
+          docker image prune -f
