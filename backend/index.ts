@@ -17,5 +17,5 @@ app.listen(8000, async () => {
 
   await startPostgre();
 
-/*   await startConsumeMessage(); */
+  await startConsumeMessage();
 });

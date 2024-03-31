@@ -2,8 +2,8 @@ FROM node:lts-alpine3.19
 
 WORKDIR /app
 
-COPY . /app
+COPY . .
 
-RUN npm install && npm install typescript -g && npm run build
+RUN npm install && npm install -g typescript ts-node && tsc --build
 
-CMD ["npm", "start"]
+CMD ["node", "build/index.js"]
