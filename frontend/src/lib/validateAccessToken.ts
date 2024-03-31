@@ -14,14 +14,9 @@ export default async function validateAccessToken() {
   if (!token) return redirect(fallbackPath);
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET as string);
-
-    if (!payload) return redirect(fallbackPath);
-
-    return payload as {
-      id: string;
-      email: string;
-    };
+    jwt.verify(token, process.env.JWT_SECRET as string, (err) => {
+      if (err) return redirect(fallbackPath);
+    });
   } catch (error) {
     console.log(error);
     return redirect(fallbackPath);
