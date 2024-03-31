@@ -45,6 +45,12 @@ export default async function submitFile(
     resolve(null);
   });
 
+  if (!cookie.has("id")) redirect("/login");
+
+  const userId = cookie.get("id")?.value;
+
+  if (!userId) redirect("/login");
+
   // Start rabbitmq connection
   if (connection === null) {
     connection = await amqp
@@ -63,6 +69,7 @@ export default async function submitFile(
     };
   }
 
+  // Don't share channels between requests
   const channel = await connection
     .createChannel()
     .then((channel) => channel)
@@ -78,6 +85,7 @@ export default async function submitFile(
     };
   }
 
+  // Assert exchange before publishing message for fanout exchange.
   const reply = await channel
     .assertExchange(exchangeName, "fanout", {
       durable: false,
@@ -95,6 +103,7 @@ export default async function submitFile(
     };
   }
 
+  // Assert queue before binding it to the exchange (required for fanout exchange)
   const queue = await channel
     .assertQueue(queueName, { durable: false })
     .then((reply) => reply)
@@ -108,13 +117,6 @@ export default async function submitFile(
       data: [],
     };
   }
-
-  // Get current user
-  if (!cookie.has("id")) redirect("/login");
-
-  const userId = cookie.get("id")?.value;
-
-  if (!userId) redirect("/login");
 
   // Create a file
   const file = formData.get("file") as File | null;
