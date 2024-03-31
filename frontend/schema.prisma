@@ -21,6 +21,7 @@ model UploadedFile {
 model Keyword {
   id          String    @default(cuid()) @id
   keyword     String    @default("")
+  compactKeyword String  @map(name: "compact_keyword")
   createdAt   DateTime  @default(now()) @map(name: "created_at")
   fileId      String?   @map(name: "file_id")
   @@map("keywords")
