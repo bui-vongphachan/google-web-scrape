@@ -6,7 +6,7 @@ export default function ExampleFileButton() {
         download="sample-keyword.csv"
         className=" text-grey-300 hover:underline"
       >
-        Click to Download
+        Sample file
       </a>
     </div>
   );

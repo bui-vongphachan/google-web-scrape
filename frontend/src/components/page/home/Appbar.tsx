@@ -1,10 +1,8 @@
 "use client";
 
-import submitFile, { ActionResult } from "./action";
+import submitFile, { ActionResult } from "../../../app/action";
 import React from "react";
 import { useFormState } from "react-dom";
-import { useFormStatus } from "react-dom";
-import saveResultInClient from "./saveResultInClient";
 
 const initialState: ActionResult = {
   message: "",
@@ -14,23 +12,11 @@ const initialState: ActionResult = {
 export default function Appbar() {
   const ref = React.useRef<HTMLButtonElement>(null);
 
-  const { pending } = useFormStatus();
-
   const [state, action] = useFormState(submitFile, initialState);
 
   const onChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     ref.current?.click();
   };
-
-  React.useEffect(() => {
-    const cloneState = state as ActionResult;
-
-    if (!cloneState.data) return;
-
-    if (cloneState.data.length === 0) return;
-
-    saveResultInClient(cloneState.data);
-  }, [state]);
 
   return (
     <div id="actions-box" className="action-box">
@@ -57,7 +43,7 @@ export default function Appbar() {
       </div>
       <div id="sample-box">
         <a href="/sample-keyword.csv" download="sample-keyword.csv">
-          Click to Download
+          Sample file
         </a>
       </div>
     </div>
