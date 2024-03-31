@@ -38,6 +38,8 @@ async function doScraping(content) {
     (keyword) => !existingKeywords.includes(keyword)
   );
 
+  console.log("New keywords: ", newKeywords);
+
   const userAgent = new UserAgent({ deviceCategory: "desktop" });
 
   const browser = await puppeteer.launch({
