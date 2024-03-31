@@ -163,6 +163,7 @@ export default async function submitFile(
     data: list.map((item) => {
       const keyword: Keyword = {
         id: generateUniqueIdentifier(),
+        compactKeyword: item.toLowerCase().replace(/\s/g, ""),
         keyword: item,
         createdAt: new Date(),
         fileId: fileId,
