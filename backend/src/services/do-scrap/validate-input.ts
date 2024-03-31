@@ -6,7 +6,11 @@ export default function validateInput(content: unknown): string[] {
   if (content === "") return [];
 
   // check if is array
-  if (!Array.isArray(Array.from(content))) return [];
+  try {
+    if (!Array.isArray(JSON.parse(content))) return [];
+  } catch (error) {
+    return [];
+  }
 
   // convert content strings to array
   const contentArray = JSON.parse(content);

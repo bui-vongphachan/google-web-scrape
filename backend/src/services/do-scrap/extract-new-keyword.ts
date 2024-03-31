@@ -1,6 +1,9 @@
-import { pgClient } from "../../lib/startPostgre";
+import { Sequelize } from "sequelize";
 
-export default async function extractNewKeywords(keywords: string[]) {
+export default async function extractNewKeywords(
+  keywords: string[],
+  sequalizeClient: Sequelize
+) {
   // validate input
   if (keywords.length === 0) return [];
 
@@ -12,20 +15,22 @@ export default async function extractNewKeywords(keywords: string[]) {
   const query = `SELECT keyword FROM page_source_codes WHERE keyword IN (${singleQuotedKeywords}) LIMIT 100`;
 
   // find the existing keywords
-  let existingKeywordObjects = await pgClient
+  let existingKeywordObjects = await sequalizeClient
     .query(query)
-    .then((res) => res.rows)
+    .then((res) => res[0] as any)
     .catch((err) => {
       console.log(err);
       return null;
     });
+
+  console.log({ existingKeywordObjects });
 
   // return empty there is error
   if (existingKeywordObjects === null) return [];
 
   // convert form array of objects into array of strings
   const existingKeywords = existingKeywordObjects.map(
-    (item) => (item.keyword as string) || ""
+    (item: any) => item.keyword as string
   );
 
   // remove the existing keywords from the new keywords

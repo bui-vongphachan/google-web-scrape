@@ -7,15 +7,21 @@ import extractNewKeywords from "./extract-new-keyword";
 import visitSite from "./visit-site";
 import getDataFromWeb from "./get-data-from-web";
 import compressPageSource from "./compress-page-source";
-import { pgClient } from "../../lib/startPostgre";
+import { Sequelize } from "sequelize";
 
-export default async function doScraping(content: unknown) {
+export default async function doScraping(
+  content: unknown,
+  sequalizeClient: Sequelize
+) {
   // validate input
   const keywords = validateInput(content);
 
   const transformedKeywords = transformContent(keywords);
 
-  const newKeywords = await extractNewKeywords(transformedKeywords);
+  const newKeywords = await extractNewKeywords(
+    transformedKeywords,
+    sequalizeClient
+  );
 
   const userAgent = new UserAgent({ deviceCategory: "desktop" });
 
@@ -39,14 +45,14 @@ export default async function doScraping(content: unknown) {
     const saveQuery = ` INSERT INTO page_source_codes 
                           (keyword, compressed_source_code, total_links, adwords, stats) 
                         VALUES 
-                          ($1, $2, $3, $4, $5)`;
+                          (
+                            '${keyword}', 
+                            '${compressedContent}', 
+                            ${JSON.stringify(webContent.totalLinks)}, 
+                            ${JSON.stringify(webContent.adWords)}, 
+                            ${JSON.stringify(webContent.stats)}
+                          )`;
 
-    await pgClient.query(saveQuery, [
-      keyword,
-      compressedContent,
-      JSON.stringify(webContent.totalLinks),
-      JSON.stringify(webContent.adWords),
-      JSON.stringify(webContent.stats),
-    ]);
+    await sequalizeClient.query(saveQuery);
   }
 }
