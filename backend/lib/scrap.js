@@ -64,15 +64,15 @@ async function doScraping(content) {
     const html = await page.evaluate(() => {
       const el = document.querySelector(`body`);
 
-      const stats = document.querySelector(`#result-stats`).innerText;
+      const stats = document.querySelector(`#result-stats`);
 
       const elements = document.querySelectorAll(`div[data-text-ad="1"]`);
 
       const links = document.querySelectorAll(`a`);
 
       return {
-        mainContent: el.innerHTML,
-        stats: stats,
+        mainContent: el ? el.innerHTML : "no content",
+        stats: stats ? stats.innerHTML : "no content",
         totalLinks: links.length,
         adWords: elements.length,
       };
