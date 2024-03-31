@@ -21,26 +21,18 @@ async function doScraping(content) {
     keyword.toLowerCase().replace(/\s/g, "")
   );
 
-  console.log({ transformedKeywords });
+  const stringifiedKeywords = transformedKeywords
+    .map((item) => `'${item}'`)
+    .join(",");
 
-  const existingKeywords = await pgClient
-    .query(
-      `SELECT * FROM page_source_codes WHERE keyword IN (${transformedKeywords.join(
-        ","
-      )}) LIMIT 100`,
-      []
-    )
-    .then((res) => {
-      console.log(res.command);
-      return res.rows;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  const query = `SELECT keyword FROM page_source_codes WHERE keyword IN (${stringifiedKeywords}) LIMIT 100`;
 
-  console.log({ existingKeywords });
+  let existingKeywords = await pgClient
+    .query(query)
+    .then((res) => res.rows)
+    .catch((err) => console.log(err));
 
-  return;
+  existingKeywords = existingKeywords.map((item) => item.keyword);
 
   const newKeywords = transformedKeywords.filter(
     (keyword) => !existingKeywords.includes(keyword)
@@ -85,6 +77,7 @@ async function doScraping(content) {
     await page.close();
 
     const $ = cheerio.load(html.mainContent);
+
     // remove scripts so that the size would be smaller
     $("script").remove();
 
