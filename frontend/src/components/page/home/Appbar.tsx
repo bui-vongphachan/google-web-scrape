@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import submitFile, { ActionResult } from "../../../app/action";
 import React from "react";
 import { useFormState } from "react-dom";
@@ -10,6 +11,8 @@ const initialState: ActionResult = {
 };
 
 export default function Appbar() {
+  const searchParams = useSearchParams();
+
   const ref = React.useRef<HTMLButtonElement>(null);
 
   const [state, action] = useFormState(submitFile, initialState);
@@ -38,7 +41,7 @@ export default function Appbar() {
           <button type="submit" className=" hidden" ref={ref}>
             submit
           </button>
-          <p>{state.message}</p>
+          <p>{searchParams.get("message")}</p>
         </form>
       </div>
       <div id="sample-box">

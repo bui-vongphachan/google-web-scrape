@@ -180,14 +180,14 @@ export default async function submitFile(
 
       const buf = Buffer.from(JSON.stringify(chunks));
 
-      const isSent = channel.publish(exchangeName, "", buf);
+      channel.publish(exchangeName, "", buf);
     }
   } catch (error) {
+    console.log(error);
+  } finally {
     await connection.close();
     await channel.close();
+
+    redirect("?message=File uploaded successfully");
   }
-
-  prevState.message = "Searching...";
-
-  return prevState;
 }
