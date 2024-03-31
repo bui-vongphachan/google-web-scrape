@@ -62,15 +62,19 @@ async function doScraping(content) {
     await page.goto(pageUrl, { waitUntil: "domcontentloaded" });
 
     const html = await page.evaluate(() => {
-      const selector = `body`;
+      const el = document.querySelector(`body`);
 
-      const el = document.querySelector(selector);
+      const stats = document.querySelector(`#result-stats`).innerText;
+
+      const elements = document.querySelectorAll(`div[data-text-ad="1"]`);
+
+      const links = document.querySelectorAll(`a`);
 
       return {
         mainContent: el.innerHTML,
-        stats: "el.outerHTML",
-        totalLinks: 0,
-        adWords: 0,
+        stats: stats,
+        totalLinks: links.length,
+        adWords: elements.length,
       };
     });
 
@@ -86,8 +90,19 @@ async function doScraping(content) {
     const compressedFile = await compress($.html());
 
     const query = {
-      text: `INSERT INTO page_source_codes (keyword, compressed_source_code) VALUES ($1, $2)`,
-      values: [keyword, compressedFile],
+      text: `
+              INSERT INTO page_source_codes 
+                (keyword, compressed_source_code, total_links, adwords, stats) 
+              VALUES 
+                ($1, $2, $3, $4, $5)
+            `,
+      values: [
+        keyword,
+        compressedFile,
+        html.totalLinks,
+        html.adWords,
+        html.stats,
+      ],
     };
     await pgClient.query(query).catch((err) => {
       console.log(err);
