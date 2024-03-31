@@ -1,6 +1,6 @@
 "use server";
 
-import { generateUniqueIdentifier } from "@/lib/generateUniqueIdentifier";
+import { generateUniqueIdentifier } from "@/services/generateUniqueIdentifier";
 import prisma from "@/lib/prisma";
 import { Keyword, UploadedFile } from "@prisma/client";
 import { cookies } from "next/headers";

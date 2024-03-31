@@ -1,7 +1,7 @@
 import React from "react";
 import KeywordList from "@/components/page/home/KeywordList";
 import UploadFiles from "@/components/page/home/UploadFiles";
-import validateAccessToken from "@/lib/validateAccessToken";
+import validateAccessToken from "@/services/validateAccessToken";
 import Appbar from "@/components/page/home/Appbar";
 import PagePreview from "@/components/page/home/Preview";
 

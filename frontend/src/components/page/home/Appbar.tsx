@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import submitFile, { ActionResult } from "../../../app/action";
+import submitFile, { ActionResult } from "@/app/action";
 import React from "react";
 import { useFormState } from "react-dom";
 
