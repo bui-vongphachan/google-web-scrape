@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import jwt from "jsonwebtoken";
 import amqp from "amqplib";
 
+let connection: amqp.Connection | null = null;
 const exchangeName = "search-exchange";
 const queueName = "search-queue";
 
@@ -45,13 +46,15 @@ export default async function submitFile(
   });
 
   // Start rabbitmq connection
-  const connection = await amqp
-    .connect(process.env.RABBITMQ_URL as string)
-    .then((conn) => conn)
-    .catch((err) => {
-      console.log(err);
-      return null;
-    });
+  if (connection === null) {
+    connection = await amqp
+      .connect(process.env.RABBITMQ_URL as string)
+      .then((conn) => conn)
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  }
 
   if (!connection) {
     return {
@@ -173,21 +176,30 @@ export default async function submitFile(
     }),
   });
 
-  try {
-    // Splite keywords by 20 and publish to rabbitmq
-    for (let i = 0; i < newKeywordsToSearch.length; i += 20) {
+  // Splite keywords by 20 and publish to rabbitmq
+  const promises = [];
+
+  for (let i = 0; i < newKeywordsToSearch.length; i += 20) {
+    const promise = new Promise((resolve) => {
       const chunks = newKeywordsToSearch.slice(i, i + 20);
+
+      console.log(chunks);
 
       const buf = Buffer.from(JSON.stringify(chunks));
 
       channel.publish(exchangeName, "", buf);
-    }
-  } catch (error) {
-    console.log(error);
-  } finally {
-    await connection.close();
-    await channel.close();
 
-    redirect("?message=File uploaded successfully");
+      resolve(null);
+    });
+
+    promises.push(promise);
   }
+
+  await Promise.all(promises);
+
+  // await connection.close();
+
+  console.log("File uploaded successfully");
+
+  redirect("?message=File uploaded successfully");
 }
