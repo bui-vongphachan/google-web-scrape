@@ -2,8 +2,14 @@
 
 import { generateUniqueIdentifier } from "@/lib/generateUniqueIdentifier";
 import prisma from "@/lib/prisma";
-import { Keyword } from "@prisma/client";
-import { decompress } from "shrink-string";
+import { Keyword, UploadedFile } from "@prisma/client";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import jwt from "jsonwebtoken";
+import amqp from "amqplib";
+
+const exchangeName = "search-exchange";
+const queueName = "search-queue";
 
 interface KeywordValuePair {
   [keyword: string]: string;
@@ -21,6 +27,93 @@ export default async function submitFile(
   prevState.message = "";
   prevState.data = [];
 
+  const cookie = cookies();
+
+  // validate token
+  if (!cookie.has("token")) redirect("/login");
+
+  const token = cookie.get("token")?.value;
+
+  if (!token) redirect("/login");
+
+  await new Promise((resolve) => {
+    jwt.verify(token, process.env.JWT_SECRET as string, (err) => {
+      if (err) redirect("/login");
+    });
+
+    resolve(null);
+  });
+
+  // Start rabbitmq connection
+  const connection = await amqp
+    .connect(process.env.RABBITMQ_URL as string)
+    .then((conn) => conn)
+    .catch((err) => {
+      console.log(err);
+      return null;
+    });
+
+  if (!connection) {
+    return {
+      message: "Failed to connect to RabbitMQ",
+      data: [],
+    };
+  }
+
+  const channel = await connection
+    .createChannel()
+    .then((channel) => channel)
+    .catch((err) => {
+      console.log(err);
+      return null;
+    });
+
+  if (!channel) {
+    return {
+      message: "Failed to create channel",
+      data: [],
+    };
+  }
+
+  const reply = await channel
+    .assertExchange(exchangeName, "fanout", {
+      durable: false,
+    })
+    .then((reply) => reply)
+    .catch((err) => {
+      console.log(err);
+      return null;
+    });
+
+  if (!reply) {
+    return {
+      message: "Failed to assert exchange",
+      data: [],
+    };
+  }
+
+  const queue = await channel
+    .assertQueue(queueName, { durable: false })
+    .then((reply) => reply)
+    .catch((err) => {
+      console.log(err);
+      return null;
+    });
+  if (!queue) {
+    return {
+      message: "Failed to assert queue",
+      data: [],
+    };
+  }
+
+  // Get current user
+  if (!cookie.has("id")) redirect("/login");
+
+  const userId = cookie.get("id")?.value;
+
+  if (!userId) redirect("/login");
+
+  // Create a file
   const file = formData.get("file") as File | null;
 
   if (!file) {
@@ -30,6 +123,18 @@ export default async function submitFile(
     };
   }
 
+  const fileId = generateUniqueIdentifier();
+
+  const newFile: UploadedFile = {
+    id: fileId,
+    name: file.name,
+    createdAt: new Date(),
+    userId: userId,
+  };
+
+  await prisma.uploadedFile.create({ data: newFile });
+
+  // Filter out existing keywords
   const list = await file
     .text()
     .then((text) => text.split("\n").filter((item) => item !== ""));
@@ -41,77 +146,47 @@ export default async function submitFile(
     };
   }
 
-  const fileId = generateUniqueIdentifier();
-
-  const newFile: any = {
-    id: fileId,
-    name: file.name,
-    createdAt: new Date(),
-  };
-
-  await prisma.cSVFile.create({
-    data: newFile,
+  const existingKeywords = await prisma.keyword.findMany({
+    where: {
+      keyword: {
+        in: list,
+      },
+    },
   });
 
+  const newKeywordsToSearch = list.filter(
+    (item) => !existingKeywords.some((keyword) => keyword.keyword === item)
+  );
+
+  // Create keywords
   await prisma?.keyword.createMany({
     data: list.map((item) => {
       const keyword: Keyword = {
         id: generateUniqueIdentifier(),
         keyword: item,
-        csvFileId: fileId,
         createdAt: new Date(),
+        fileId: fileId,
       };
 
       return keyword;
     }),
   });
 
-  const url = "http://localhost:8000/api/search";
+  try {
+    // Splite keywords by 20 and publish to rabbitmq
+    for (let i = 0; i < newKeywordsToSearch.length; i += 20) {
+      const chunks = newKeywordsToSearch.slice(i, i + 20);
 
-  const chunks = [];
+      const buf = Buffer.from(JSON.stringify(chunks));
 
-  for (let i = 0; i < list.length; i += 20) {
-    chunks.push(list.slice(i, i + 20));
+      const isSent = channel.publish(exchangeName, "", buf);
+    }
+  } catch (error) {
+    await connection.close();
+    await channel.close();
   }
 
-  const pendingResponses: { keyword: string }[][] = [];
+  prevState.message = "Searching...";
 
-  for (let i = 0; i < chunks.length; i++) {
-    console.log("CHUCK !!!!", i);
-
-    const data = await fetch(url.toString(), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ keywords: chunks[i] }),
-    })
-      .then((response) => response.json())
-      .then((data: { keyword: string }[]) => {
-        return data;
-      })
-      .catch((error) => {
-        console.error(error);
-        return null;
-      });
-
-    if (!data) continue;
-
-    if (data) pendingResponses.push(data);
-  }
-
-  const responses = (await Promise.all(pendingResponses)).flat();
-
-  const pendingActualResults = responses.map(async (item) => {
-    const key = Object.keys(item)[0];
-    const value = Object.values(item)[0];
-    return {
-      [key]: await decompress(value),
-    };
-  });
-
-  const result = await Promise.all(pendingActualResults);
-
-  return {
-    message: "Success",
-    data: result,
-  };
+  return prevState;
 }
