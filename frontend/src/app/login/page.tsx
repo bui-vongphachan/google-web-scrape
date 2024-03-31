@@ -28,8 +28,8 @@ export default function LoginPage(props: any) {
   const [state, action] = useFormState(submitFile, initialState);
 
   return (
-    <main id="main-box" className=" main-box">
-      <form id="form-box" action={action} className=" form-box">
+    <main id="auth-main-box">
+      <form id="form-box" action={action}>
         <h1 className=" form-title">Login</h1>
         {(state.message || message) && (
           <p className={`form-feedback ${state.isError ? "error" : "success"}`}>

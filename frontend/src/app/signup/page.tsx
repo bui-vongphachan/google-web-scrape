@@ -16,8 +16,8 @@ export default function SignUpPage() {
   const [state, action] = useFormState(signup, initialState);
 
   return (
-    <main id="main-box" className=" main-box">
-      <form id="form-box" className=" form-box" action={action}>
+    <main id="auth-main-box">
+      <form id="form-box" action={action}>
         <h1 className=" form-title">Sign up</h1>
         {state.message && (
           <p className={`form-feedback ${state.isError ? "error" : "success"}`}>
