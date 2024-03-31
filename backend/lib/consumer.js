@@ -25,7 +25,7 @@ async function listenToQueue() {
 
     console.log(`[*] Waiting for messages in ${queueName}.`);
 
-    channel.consume(
+    await channel.consume(
       queueName,
       async (message) => {
         console.log(`[x] Received message: ${message.content.toString()}`);

@@ -3,7 +3,6 @@ const cors = require("cors");
 const compression = require("compression");
 const { listenToQueue } = require("./lib/consumer");
 const { connectToDatabase } = require("./lib/postgre");
-const { startRabbitMQ } = require("./lib/rabbitmq");
 
 const app = express();
 
