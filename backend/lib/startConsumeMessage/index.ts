@@ -1,13 +1,13 @@
-require("dotenv").config();
-
-const amqp = require("amqplib");
-const { doScraping } = require("./scrap");
+import amqp from "amqplib";
+import doScraping from "../../services/do-scrap";
 
 const queueName = "search-queue";
 const exchangeName = "search-exchange";
 
-async function listenToQueue() {
+export default async function startConsumeMessage() {
   try {
+    if (!process.env.RABBITMQ_URL) throw new Error("RABBITMQ_URL is not set");
+
     // Connect to RabbitMQ server
     const connection = await amqp.connect(process.env.RABBITMQ_URL);
 
@@ -28,6 +28,8 @@ async function listenToQueue() {
     await channel.consume(
       queueName,
       async (message) => {
+        if (!message) return;
+
         console.log(`[x] Received message: ${message.content.toString()}`);
 
         await doScraping(message.content.toString());
@@ -38,5 +40,3 @@ async function listenToQueue() {
     console.error("Error occurred:", error);
   }
 }
-
-module.exports = { listenToQueue };

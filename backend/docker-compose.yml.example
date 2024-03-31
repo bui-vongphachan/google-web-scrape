@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  google-search-scraper:
+    build: .
+    image: google-search-scraper:1.0.0
+    ports:
+      - 8000:8000
+    container_name: google-search-scraper
