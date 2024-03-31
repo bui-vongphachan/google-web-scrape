@@ -19,7 +19,9 @@ export default async function PagePreview(props: any) {
     },
   });
 
-  const sourceCode = await decompress(page?.compressedSourceCode);
+  if (!page) return <p>No data</p>;
+
+  const sourceCode = await decompress(page.compressedSourceCode);
 
   return (
     <div id="page-preview" className=" flex-1 ">
