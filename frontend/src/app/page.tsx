@@ -1,21 +1,21 @@
 import React from "react";
-import KeywordList from "@/components/KeywordList";
-import CSVList from "@/components/CSVList";
-import ResultPreview from "@/components/ResultPreview";
+import KeywordList from "@/components/page/home/KeywordList";
+import UploadFiles from "@/components/page/home/UploadFiles";
 import validateAccessToken from "@/lib/validateAccessToken";
-import Appbar from "./Appbar";
+import Appbar from "@/components/page/home/Appbar";
+import PagePreview from "@/components/page/home/Preview";
 
 export default async function Home(props: any) {
-  const user = await validateAccessToken();
+  await validateAccessToken();
 
   return (
     <main id="main-box">
       <div id="main-content-wrapper">
         <Appbar />
         <div id="result-box" className=" flex flex-1 divide-x overflow-hidden">
-          <CSVList {...props} />
+          <UploadFiles {...props} />
           <KeywordList {...props} />
-          <ResultPreview {...props} />
+          <PagePreview {...props} />
         </div>
       </div>
     </main>
