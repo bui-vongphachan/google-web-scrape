@@ -12,7 +12,7 @@ The backend is built with Next.js and written in TypeScript. It uses PostgreSQL 
 To run the backend locally:
 
 1. Install dependencies: `npm install`
-2. Create a PostgreSQL database: `createdb google-search-backend`
+2. Setup RabbitMQ and Postgre DB
 3. Run the development server: `npm run dev`
 
 The backend will be available at `http://localhost:8000`.
