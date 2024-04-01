@@ -42,17 +42,22 @@ export default async function doScraping(
 
     const compressedContent = await compressPageSource(webContent.mainContent);
 
-    const saveQuery = ` INSERT INTO page_source_codes 
-                          (keyword, compressed_source_code, total_links, adwords, stats) 
-                        VALUES 
-                          (
-                            '${keyword}', 
-                            '${compressedContent}', 
-                            ${JSON.stringify(webContent.totalLinks)}, 
-                            ${JSON.stringify(webContent.adWords)}, 
-                            ${JSON.stringify(webContent.stats)}
-                          )`;
-
-    await sequalizeClient.query(saveQuery);
+    await sequalizeClient.query(
+      `
+      INSERT INTO page_source_codes
+        (keyword, compressed_source_code, total_links, adwords, stats)
+      VALUES
+        (:keyword, :compressed_source_code, :total_links, :adwords, :stats)
+      `,
+      {
+        replacements: {
+          keyword: keyword,
+          compressed_source_code: compressedContent,
+          total_links: JSON.stringify(webContent.totalLinks),
+          adwords: JSON.stringify(webContent.adWords),
+          stats: JSON.stringify(webContent.stats),
+        },
+      }
+    );
   }
 }
