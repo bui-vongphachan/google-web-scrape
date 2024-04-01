@@ -1,0 +1,49 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model UploadedFile {
+  id        String    @default(cuid()) @id
+  name      String
+  createdAt DateTime  @default(now()) @map(name: "created_at")
+  userId    String?   @map(name: "user_id")
+  @@map("uploaded_files")
+}
+
+model Keyword {
+  id          String    @default(cuid()) @id
+  keyword     String    @default("")
+  compactKeyword String  @map(name: "compact_keyword")
+  createdAt   DateTime  @default(now()) @map(name: "created_at")
+  fileId      String?   @map(name: "file_id")
+  @@map("keywords")
+}
+
+model User {
+  id            String    @default(cuid()) @id
+  email         String?   @unique
+  password      String?  
+  createdAt     DateTime  @default(now()) @map(name: "created_at")
+  updatedAt     DateTime  @updatedAt @map(name: "updated_at")
+  // csvFiles      CSVFile[]  
+  @@map(name: "users")
+}
+
+model PageSourceCode {
+  id          Int       @default(autoincrement()) @id
+  stats       String    @default("")
+  totalLinks  Int       @default(0) @map(name: "total_links")
+  adwords     Int       @default(0)
+  keyword     String
+  compressedSourceCode        String @map(name: "compressed_source_code")
+  createdAt   DateTime  @default(now()) @map(name: "created_at")
+  @@map("page_source_codes")
+}

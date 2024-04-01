@@ -1,0 +1,44 @@
+$btn-variants: ("outlined", "contained", "text");
+
+@each $variant in $btn-variants {
+  @each $color, $value in $theme-colors {
+    .btn-#{$variant}-#{$color} {
+      padding: 0.5rem 1rem;
+      border-radius: 0.25rem;
+      min-width: 120px;
+
+      @if ($variant == "contained") {
+        background-color: $value;
+        color: #fff;
+      }
+
+      @if ($variant == "text") {
+        color: $value;
+
+        &:hover {
+          color: darken($value, 10%);
+        }
+      }
+
+      @if ($variant == "outlined") {
+        border-color: $value;
+      }
+
+      &:hover {
+        @if ($variant == "contained") {
+          background-color: darken($value, 10%);
+        }
+
+        @if ($variant == "outlined") {
+          background-color: $value;
+          color: #fff;
+        }
+      }
+
+      &:active,
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+}

@@ -1,0 +1,79 @@
+#main-box {
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  max-width: 1280px;
+  height: 100dvh;
+  padding: 48px;
+}
+
+#main-box #main-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-radius: 6px;
+  border-color: map-get($gray-colors, "300");
+  border-style: solid;
+  border-width: 1px;
+}
+
+.action-box {
+  display: flex;
+  border-bottom-width: 1px;
+  border-color: map-get($gray-colors, "300");
+  border-style: solid;
+}
+
+.action-box #upload-box {
+  flex: 1;
+}
+
+.action-box #upload-box form {
+  display: flex;
+  gap: 12px;
+  padding: 4px;
+  align-items: center;
+}
+
+.upload-input {
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+}
+
+.upload-input label {
+  position: relative;
+  cursor: pointer;
+  width: fit-content;
+  border-radius: 6px;
+  border: 1px;
+  border-color: map-get($gray-colors, "400");
+  border-style: solid;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.upload-label:hover {
+  border-color: map-get($gray-colors, "500");
+}
+
+.upload-label span {
+  color: map-get($gray-colors, "700");
+}
+
+.action-box #sample-box {
+  display: flex;
+  align-items: center;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.action-box #sample-box a {
+  color: map-get($gray-colors, "700");
+}
+
+.action-box #sample-box a:hover {
+  text-decoration: underline;
+}

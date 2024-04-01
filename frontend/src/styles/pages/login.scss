@@ -1,0 +1,54 @@
+#auth-main-box {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 48px;
+  display: flex;
+}
+
+#auth-main-box form {
+  width: 100%;
+  max-width: 448px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.25rem;
+  border: 1px solid #e0e0e0;
+  padding: 32px;
+}
+
+.form-title {
+  font-size: 1.875rem;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+.form-feedback {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  padding-left: 0.25rem;
+}
+
+.form-feedback.success {
+  color: map-get($theme-colors, "success");
+}
+
+.form-feedback.error {
+  color: map-get($theme-colors, "danger");
+}
+
+.form-buttons-box {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 32px;
+}
+
+.form-label {
+  @include form-label();
+}
+
+.form-input {
+  @include form-input();
+}
