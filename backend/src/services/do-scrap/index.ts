@@ -28,7 +28,7 @@ export default async function doScraping(
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: executablePath(),
-    args: ["--user-agent=" + userAgent.random().toString()],
+    args: ["--no-sandbox", "--user-agent=" + userAgent.random().toString()],
   });
 
   for (let i = 0; i < newKeywords.length; i++) {
