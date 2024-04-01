@@ -36,8 +36,8 @@ export default async function KeywordList(props: any) {
               <div className=" p-2 border-b cursor-pointer hover:bg-gray-100 text-neutral-700">
                 <p>{keyword.keyword}</p>
                 <div className=" flex flex-col text-neutral-500">
-                  <small>{(keyword.stats || "").replace(/<[^>]*>/g, "")}</small>
-                  <small>{keyword.total_links} links</small>
+                  <small>{(keyword.stats || "").replace(/<[^>]*>/g, "") || "loading..."}</small>
+                  <small>{keyword.total_links || "loading..."} links</small>
                 </div>
               </div>
             </Link>
