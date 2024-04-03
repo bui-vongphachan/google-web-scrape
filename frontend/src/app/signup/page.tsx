@@ -1,8 +1,8 @@
 "use client";
 
+import submitSignUpForm from "@/form-actions/submit-signup-form";
 import Link from "next/link";
 import { useFormState } from "react-dom";
-import signup from "./action";
 
 const initialState: {
   message: string;
@@ -13,7 +13,7 @@ const initialState: {
 };
 
 export default function SignUpPage() {
-  const [state, action] = useFormState(signup, initialState);
+  const [state, action] = useFormState(submitSignUpForm, initialState);
 
   return (
     <main id="auth-main-box">
