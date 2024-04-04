@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import validateSignUpInput from "@/validators/validate-signup-input";
 import User from "./user";
 import FunctionOutput from "./function-output";
+import locale from "@/locales/en.json";
+import validateSignInInput from "@/validators/validate-signin-input";
 
 export default class Authentication extends User {
   repassword = "";
@@ -20,49 +22,62 @@ export default class Authentication extends User {
 
     const getTokenOutput = await this.getAccessTokenFromCookie();
 
-    if (getTokenOutput.isError)
+    if (getTokenOutput.isError) {
       return redirect("/login?message=" + getTokenOutput.message);
+    }
+
+    if (process.env.JWT_SECRET === undefined) {
+      return redirect(
+        "/login?message=" + locale["authentication-need_to_login"]
+      );
+    }
 
     try {
-      await new Promise((resolve) => {
+      await new Promise((resolve, reject) => {
         jwt.verify(
           getTokenOutput.data,
           process.env.JWT_SECRET as string,
           (err) => {
-            if (err)
-              return redirect("/login?message=" + "Please login to continue");
+            if (err) reject(err);
+            else resolve(null);
           }
         );
-
-        resolve(null);
       });
+
+      validateOutput.isError = false;
+      validateOutput.message =
+        locale.authentication_validate_access_token_success;
+
+      return validateOutput;
     } catch (error) {
-      console.log(error);
-      return redirect("/login?message=" + "Please login to continue");
+      return redirect(
+        "/login?message=" + locale["authentication-need_to_login"]
+      );
     }
-
-    validateOutput.isError = false;
-    validateOutput.message = "Token is valid";
-
-    return validateOutput;
   }
 
-  async login() {
-    const output = new FunctionOutput(true, "", "");
+  async login(): Promise<FunctionOutput<string>> {
+    const output = new FunctionOutput(true, "Something went wrong", "");
 
-    const validationOutput = validateSignUpInput(this);
+    const validationOutput = validateSignInInput(this);
 
-    if (validationOutput.isError) validationOutput;
+    if (validationOutput.isError) return validationOutput;
 
     const existingUser = await this.findOne();
 
-    if (existingUser.isError || existingUser.data === null) return output;
+    if (existingUser.isError || existingUser.data === null) {
+      output.message = existingUser.message;
+      return output;
+    }
 
     const compareResult = await this.comparePassword(
       existingUser.data.password as string
     );
 
-    if (compareResult.isError || !compareResult.data) return compareResult;
+    if (compareResult.isError || !compareResult.data) {
+      output.message = compareResult.message;
+      return output;
+    }
 
     const makeTokenOutput = await this.makeAccessToken();
 
@@ -71,7 +86,7 @@ export default class Authentication extends User {
     this.setCookie();
 
     output.isError = false;
-    output.message = "Login successful";
+    output.message = locale["authentication-login_success"];
 
     return output;
   }
@@ -104,6 +119,11 @@ export default class Authentication extends User {
   async makeAccessToken() {
     const output = new FunctionOutput(true, "", "");
 
+    if (process.env.JWT_SECRET === undefined) {
+      output.message = locale["authentication_make_access_token_failed"];
+      return output;
+    }
+
     const token = jwt.sign(
       { email: this.email },
       process.env.JWT_SECRET as string,
@@ -111,7 +131,7 @@ export default class Authentication extends User {
     );
 
     if (!token) {
-      output.message = "Failed to generate token";
+      output.message = locale["authentication_make_access_token_failed"];
       return output;
     }
 
@@ -146,14 +166,17 @@ export default class Authentication extends User {
     const cookie = cookies();
 
     if (!cookie.has("token")) {
-      output.message = "Token not found";
+      output.message =
+        locale["authentication-get_access_token_from_cookie-no_token"];
       return output;
     }
 
     const token = cookie.get("token")?.value;
 
     if (!token) {
-      output.message = "Token not found";
+      output.message =
+        locale["authentication-get_access_token_from_cookie-no_token"];
+
       return output;
     }
 

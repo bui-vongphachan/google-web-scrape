@@ -1,7 +1,7 @@
 import Authentication from "@/services/authentication";
 import FunctionOutput from "@/services/function-output";
 
-export default function validateSignUpInput(
+export function validateSignUpInput(
   auth: Authentication
 ): FunctionOutput<string> {
   const output = new FunctionOutput(true, "", "");
@@ -36,3 +36,5 @@ export default function validateSignUpInput(
 
   return output;
 }
+
+export default validateSignUpInput;

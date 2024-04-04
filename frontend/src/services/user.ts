@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import FunctionOutput from "./function-output";
+import locale from "@/locales/en.json";
 
 export default class User {
   id = "";
@@ -27,6 +28,9 @@ export default class User {
     }
 
     output.data = existingUser as unknown as User;
+    output.isError = false;
+    output.message = "User found";
+
     return output;
   }
 
@@ -89,7 +93,7 @@ export default class User {
     const isMatch = await bcrypt.compare(password, this.password);
 
     if (!isMatch) {
-      output.message = "Incorrect password";
+      output.message = locale["authentication-login-incorrect_password"];
       return output;
     }
 
