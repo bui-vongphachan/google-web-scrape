@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useFormState } from "react-dom";
-import submitFile from "./action";
+import submitLoginForm from "@/form-actions/submit-login-form";
 
 interface FormState {
   message: string;
@@ -25,7 +25,7 @@ const initialState: FormState = {
 export default function LoginPage(props: any) {
   const { message } = props.searchParams;
 
-  const [state, action] = useFormState(submitFile, initialState);
+  const [state, action] = useFormState(submitLoginForm, initialState);
 
   return (
     <main id="auth-main-box">

@@ -1,0 +1,9 @@
+{
+  "roots": ["<rootDir>/src"],
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "moduleNameMapper": {
+    "^@/(.*)$": "<rootDir>/src/$1"
+  },
+  "testPathIgnorePatterns": ["<rootDir>/build/", "<rootDir>/node_modules/"]
+}
