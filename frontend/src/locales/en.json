@@ -10,6 +10,8 @@
   "authentication-login-incorrect_password": "Incorrect password",
   "authentication_make_access_token_failed": "Failed to generate token",
   "user-find_one-not_found": "User not found",
+  "user_find_one_found": "User found",
+
   "validate-sign_in-empty_email": "Please enter an email",
   "validate-sign_in-invalid_email": "Please enter a valid email",
   "validate-sign_in-empty_password": "Please enter a password",
