@@ -16,7 +16,9 @@ export default class User {
   async findOne(): Promise<FunctionOutput<User | null>> {
     const output = new FunctionOutput<User | null>(true, "", null);
 
-    console.log(`Searching for user with email: ${this.email}`);
+    process.env.DEBUG &&
+      console.log(`Searching for user with email: ${this.email}`);
+
     const existingUser = await prisma.user
       .findFirst({
         where: {
@@ -24,21 +26,26 @@ export default class User {
         },
       })
       .then((user) => {
-        console.log(`User found in database: ${user ? user.email : "none"}`);
+        process.env.DEBUG && console.log(`User found in database: ${user}`);
         return user;
       })
       .catch((err) => {
-        console.log(`Error finding user in database: ${err}`);
+        process.env.DEBUG &&
+          console.log(`Error finding user in database: ${err}`);
         return null;
       });
 
+    if (process.env.DEBUG) {
+      console.log(`User found in database: ${existingUser?.email}`);
+    }
+
     if (!existingUser) {
-      console.log("User not found in database");
+      process.env.DEBUG && console.log("User not found in database");
       output.message = locale.en.user_find_one_not_found;
       return output;
     }
 
-    console.log("User found, returning data");
+    process.env.DEBUG && console.log("User found, returning data");
     output.data = existingUser as unknown as User;
     output.isError = false;
     output.message = locale.en["user_find_one_found"];
@@ -49,17 +56,60 @@ export default class User {
   async findDuplicate(): Promise<FunctionOutput<string>> {
     const output = new FunctionOutput<string>(false, "", "");
 
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        email: this.email,
-      },
-    });
+    process.env.DEBUG &&
+      console.log(`Checking if user with email ${this.email} already exists`);
 
-    if (existingUser) {
+    const queryOutput = await prisma.user
+      .findFirst({
+        where: {
+          email: this.email,
+        },
+      })
+      .then((user) => {
+        if (process.env.DEBUG) {
+          console.log(`User found in database: ${user ? user.email : "none"}`);
+        }
+
+        const message = locale.en.user_find_one_found;
+
+        const output = new FunctionOutput<User | null>(
+          false,
+          message,
+          user as unknown as User
+        );
+
+        return output;
+      })
+      .catch((err) => {
+        if (process.env.DEBUG) {
+          console.log(`Error finding user in database: ${err}`);
+        }
+
+        const message = locale.en.user_find_one_not_found;
+
+        const output = new FunctionOutput<User | null>(true, message, null);
+
+        return output;
+      });
+
+    if (queryOutput.isError) {
+      process.env.DEBUG && console.log("User already exists");
       output.isError = true;
-      output.message = "User already exists";
+      output.message = locale.en.user_find_duplicate_found;
       return output;
     }
+
+    if (queryOutput.data) {
+      process.env.DEBUG && console.log("User already exists");
+      output.isError = true;
+      output.message = locale.en.user_find_duplicate_found;
+      return output;
+    }
+
+    process.env.DEBUG && console.log("User does not already exist");
+
+    output.message = locale.en.user_find_duplicate_not_found;
+    output.isError = false;
 
     return output;
   }
@@ -105,7 +155,7 @@ export default class User {
     const isMatch = await bcrypt.compare(password, this.password);
 
     if (!isMatch) {
-      output.message = locale.en["authentication-login-incorrect_password"];
+      output.message = locale.en.authentication_login_incorrect_password;
       return output;
     }
 
