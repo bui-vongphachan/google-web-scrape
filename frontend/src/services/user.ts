@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import FunctionOutput from "./function-output";
-import locale from "@/locales/en.json";
+import locale from "@/locales";
 
 export default class User {
   id = "";
@@ -16,20 +16,32 @@ export default class User {
   async findOne(): Promise<FunctionOutput<User | null>> {
     const output = new FunctionOutput<User | null>(true, "", null);
 
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        email: this.email,
-      },
-    });
+    console.log(`Searching for user with email: ${this.email}`);
+    const existingUser = await prisma.user
+      .findFirst({
+        where: {
+          email: this.email,
+        },
+      })
+      .then((user) => {
+        console.log(`User found in database: ${user ? user.email : "none"}`);
+        return user;
+      })
+      .catch((err) => {
+        console.log(`Error finding user in database: ${err}`);
+        return null;
+      });
 
     if (!existingUser) {
-      output.message = "User not found";
+      console.log("User not found in database");
+      output.message = locale.en.user_find_one_not_found;
       return output;
     }
 
+    console.log("User found, returning data");
     output.data = existingUser as unknown as User;
     output.isError = false;
-    output.message = "User found";
+    output.message = locale.en["user_find_one_found"];
 
     return output;
   }
@@ -93,7 +105,7 @@ export default class User {
     const isMatch = await bcrypt.compare(password, this.password);
 
     if (!isMatch) {
-      output.message = locale["authentication-login-incorrect_password"];
+      output.message = locale.en["authentication-login-incorrect_password"];
       return output;
     }
 
