@@ -1,0 +1,19 @@
+{
+  "common": {},
+  "authentication-need_to_login": "Please login to continue",
+  "authentication_validate_access_token_success": "Token is valid",
+  "authentication-get_access_token_from_cookie-no_token": "Token not found",
+  "authentication-get_access_token_from_cookie-invalid_token": "Token not found",
+  "authentication-get_access_token_from_cookie-expired_token": "Token expired",
+  "authentication-login_failed": "Login failed",
+  "authentication-login_success": "Login success",
+  "authentication-login-incorrect_password": "Incorrect password",
+  "authentication_make_access_token_failed": "Failed to generate token",
+  "user-find_one-not_found": "User not found",
+  "user_find_one_found": "User found",
+
+  "validate-sign_in-empty_email": "Please enter an email",
+  "validate-sign_in-invalid_email": "Please enter a valid email",
+  "validate-sign_in-empty_password": "Please enter a password",
+  "validate-sign_in-success": "Credentials are valid"
+}
