@@ -10,7 +10,9 @@ export default async function startConsumeMessage(sequalizeClient: Sequelize) {
     if (!process.env.RABBITMQ_URL) throw new Error("RABBITMQ_URL is not set");
 
     // Connect to RabbitMQ server
-    const connection = await amqp.connect(process.env.RABBITMQ_URL);
+    const connection = await amqp.connect(process.env.RABBITMQ_URL, {
+      heartbeat: 10
+    });
 
     // Create a channel
     const channel = await connection.createChannel();

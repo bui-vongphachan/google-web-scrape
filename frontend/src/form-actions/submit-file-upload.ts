@@ -10,13 +10,12 @@ import KeywordList from "@/services/keywordList";
 
 const rabbitMQ = new RabbitMQ();
 
-export default async function submitFile(
-  prevState: FunctionOutput<string>,
+export default async function submitFileUpload(
+  prevState: FunctionOutput<void>,
   formData: FormData
 ) {
   prevState.message = "";
   prevState.isError = false;
-  prevState.data = "";
 
   // Check if file is uploaded
   const validateFileUploadOutput = validateFileUpload(formData);
